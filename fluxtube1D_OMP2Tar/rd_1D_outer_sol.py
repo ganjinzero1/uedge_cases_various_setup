@@ -4,9 +4,6 @@ from uedge.hdf5 import *
 
 # Set the geometry
 bbb.mhdgeo = 1 		#use MHD equilibrium
-#!rm -f aeqdsk neqdsk		#change names of MHD eqil. files 
-#!cp aeqdskd3d aeqdsk		# (Cannot tab or indent these 3 lines)
-#!cp neqdskd3d neqdsk
 flx.psi0min1 = 0.9999		#normalized flux on core bndry
 flx.psi0min2 = 0.9999		#normalized flux on pf bndry
 flx.psi0sep = 1.00001	#normalized flux at separatrix
@@ -18,9 +15,7 @@ com.nxcore[0,1] = 30*2	#pol. mesh pts from top to x-point on outside
 com.nxleg[0,1] = 32*2		#pol. mesh pts from x-point to outer plate
 com.nysol[0] = 1		#rad. mesh pts in SOL
 com.nycore[0] = 0		#rad. mesh pts in core
-#	alfcy = 2.5		#factor concentrating mesh near separatrix
 com.nxomit = (59+8)*2		#only consider half-space btwn outer mp & plate
-#flx.alfcy = 2.
 #..zml moving target
 grd.isspnew = 1
 grd.istptest = [0, 0]
@@ -47,6 +42,15 @@ bbb.methu = 33		#ion parallel momentum eqn
 bbb.methe = 33		#electron energy eqn
 bbb.methi = 33		#ion energy eqn
 bbb.methg = 33		#neutral gas continuity eqn
+
+# Parallel neutral momentum equation
+bbb.isupgon[0]=1
+if (bbb.isupgon[0] == 1):
+    bbb.isngon[0]=0
+    com.ngsp=1
+    com.nhsp=2
+    bbb.ziin[com.nhsp-1]=0
+    bbb.ineudif = 2
 
 # Boundary conditions
 bbb.isnicore = 1		#=1 sets density = ncore
@@ -121,30 +125,12 @@ bbb.svrpkg = "nksol"	#Newton solver using Krylov method
 bbb.premeth = "ilut"	#Solution method for precond. Jacobian matrix
 bbb.mfnksol = 3
 
-# Parallel neutral momentum equation
-bbb.isupgon[0]=1
-if (bbb.isupgon[0] == 1):
-    bbb.isngon[0]=0
-    com.ngsp=1
-    com.nhsp=2
-    bbb.ziin[com.nhsp-1]=0
-    bbb.ineudif = 2
-
 #..Carbon impurity with fixed fraction
 bbb.isimpon = 2
 bbb.afracs = 1e-12
-
-#..zml difference from singe version
-#bbb.iswflxlvgy = 1
-#bbb.iswflxltgy = 1
-bbb.cfvgpy[1] = 1.
-#bbb.isfdiax2 = 1.
 
 # Restart from a pfb savefile
 bbb.restart = 1		#Begin from savefile, not estimated profiles
 bbb.allocate()		#allocate space for savevariables
 hdf5_restore('pf_1D_outer_sol.hdf5')
-
-#grd.fuzz=2
-
 
